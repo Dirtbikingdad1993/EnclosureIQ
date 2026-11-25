@@ -1,0 +1,27 @@
+name: Checks
+
+# The website and its AI server deploy on Vercel from main (see vercel.json); this only checks the code.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check the JavaScript parses
+        run: npm run check
+      - name: Test the AI endpoint (mock model, no network)
+        run: npm test
+      - name: Build the site
+        run: npm run build

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Build the standalone website into _site/.
 # index.html is written for the claude.ai artifact host, which supplies the <html>/<head> skeleton;
-# this wraps it in a full document for GitHub Pages (or any static host) and copies the assets.
+# this wraps it in a full document for the website (Vercel, or any static host) and copies the assets.
+# The AI server (api/) is not part of _site: Vercel deploys it as a function from the project root.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf _site && mkdir -p _site

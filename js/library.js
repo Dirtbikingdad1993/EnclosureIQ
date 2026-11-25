@@ -4,7 +4,8 @@ import { all, save, remove, builtin, storeState, allSubs, allAmps, allVehicles, 
 import { signInDialog } from './account.js';
 import * as P from './physics.js';
 import { maxRated } from './system.js';
-import { getSample, lookupSub, extractFromManual, estimateVehicle, pdfToText, errorText, aiDisabled } from './ai.js';
+import { lookupSub, extractFromManual, estimateVehicle, pdfToText, errorText, aiAvailable, aiLimits, remoteAI } from './ai.js';
+import { cloud } from './auth.js';
 
 const keys = (path) => (Array.isArray(path) ? path : path.split('.'));
 const get = (o, path) => keys(path).reduce((a, k) => (a == null ? a : a[k]), o);
@@ -332,14 +333,20 @@ function aiProgress(label) {
   return { ctl, close: () => m.close(), status };
 }
 async function guardAI() {
-  const s = await getSample();
-  if (!s || aiDisabled()) { toast('AI is not available in this view. Open the page on claude.ai to use it.', 'bad'); return false; }
+  if (remoteAI()) {
+    if (!cloud.user) { signInDialog('Sign in to use the AI features. They are free for signed-in people, with a daily limit.'); return false; }
+    return true;
+  }
+  if (!(await aiAvailable())) { toast('AI is not available in this view. Open the page on claude.ai to use it.', 'bad'); return false; }
   return true;
 }
+const aiFailed = (e) => { if (e?.code === 'signin') signInDialog('Your sign-in has expired. Sign in again to use the AI features.'); else if (e?.code !== 'cancelled') toast(errorText(e), 'bad'); };
 function aiLookupDialog() {
   const st = { brand: '', model: '', extra: '' };
   modal({ title: 'AI spec lookup', body: h('div', { class: 'editor' },
-    h('p', { class: 'muted' }, 'Claude fills in the specs it knows for this model, including the factory box recommendations. It answers from what it learned in training and cannot browse the web from here, so check the numbers against the manual. Importing the actual manual is the most reliable path.'),
+    h('p', { class: 'muted' }, remoteAI()
+      ? 'Claude searches the web for this model\'s manual and spec sheet, then fills in the specs, including the factory box recommendations. Check the numbers against the manual before you save. Importing the manual yourself is the most reliable path.'
+      : 'Claude fills in the specs it knows for this model, including the factory box recommendations. It answers from what it learned in training and cannot browse the web from here, so check the numbers against the manual. Importing the actual manual is the most reliable path.'),
     h('div', { class: 'fs-grid' },
       textField({ id: 'ai-brand', label: 'Brand', value: '', placeholder: 'JL Audio', onChange: (v) => { st.brand = v; } }),
       textField({ id: 'ai-model', label: 'Model', value: '', placeholder: '12W6v3-D4', onChange: (v) => { st.model = v; } }),
@@ -350,24 +357,26 @@ function aiLookupDialog() {
     c();
     const p = aiProgress(`Looking up the ${st.brand} ${st.model}…`);
     try {
-      const res = await lookupSub(st, { signal: p.ctl.signal });
+      const res = await lookupSub(st, { signal: p.ctl.signal, onStatus: (msg) => { p.status.lastChild.textContent = `${msg}…`; } });
       p.close();
       if (!res?.found) { toast(res?.notes || 'Claude did not recognize that model. Try importing the manual instead.', 'warn'); return; }
       const draft = { ...defaults('subs'), ...cleanSub(res), aiSourced: true, source: { label: `AI lookup (${res.confidence || 'unknown'} confidence)${res.manual ? ` · manual: ${res.manual}` : ''}`, verified: false } };
       editItem('subs', draft, { keepId: false, banner: aiBanner(res) });
-    } catch (e) { p.close(); if (e?.code !== 'cancelled') toast(errorText(e), 'bad'); }
+    } catch (e) { p.close(); aiFailed(e); }
   } }] });
 }
 function aiBanner(res) {
+  const manual = typeof res.manual === 'string' ? res.manual.trim() : '';
+  const link = /^https?:\/\/\S+$/i.test(manual) ? h('a', { href: manual, target: '_blank', rel: 'noopener noreferrer' }, 'open it') : null;
   return h('div', { class: 'note warn' }, h('b', null, `AI result, ${res.confidence || 'unknown'} confidence. `), 'Review every number against the manual before saving.',
-    res.uncertain?.length ? ` Unsure about: ${res.uncertain.join(', ')}.` : '', res.manual ? ` Manual: ${res.manual}.` : '', res.notes ? ` ${res.notes}` : '');
+    res.uncertain?.length ? ` Unsure about: ${res.uncertain.join(', ')}.` : '', manual ? (link ? [' Manual: ', link, '.'] : ` Manual: ${manual}.`) : '', res.notes ? ` ${res.notes}` : '');
 }
 async function aiFill(draft, redraw) {
   if (!draft.brand || !draft.model) { toast('Enter the brand and model first.', 'bad'); return; }
   if (!(await guardAI())) return;
   const p = aiProgress(`Asking Claude about the ${draft.brand} ${draft.model}…`);
   try {
-    const res = await lookupSub({ brand: draft.brand, model: draft.model }, { signal: p.ctl.signal });
+    const res = await lookupSub({ brand: draft.brand, model: draft.model }, { signal: p.ctl.signal, onStatus: (msg) => { p.status.lastChild.textContent = `${msg}…`; } });
     p.close();
     if (!res?.found) { toast('Claude did not recognize that model.', 'warn'); return; }
     let filled = 0;
@@ -376,7 +385,7 @@ async function aiFill(draft, redraw) {
     draft.aiSourced = true;
     redraw();
     toast(`Filled ${filled} empty field${filled === 1 ? '' : 's'}. Existing values were kept. Check them against the manual.`, 'good');
-  } catch (e) { p.close(); if (e?.code !== 'cancelled') toast(errorText(e), 'bad'); }
+  } catch (e) { p.close(); aiFailed(e); }
 }
 export function importManual(target, redraw) {
   const st = { files: [], text: '', hint: target?.model || '' };
@@ -402,9 +411,12 @@ export function importManual(target, redraw) {
         } else images.push(f);
       }
       if (images.length) {
-        const lim = await (await getSample()).limits().catch(() => null);
+        const lim = await aiLimits().catch(() => null);
         if (!lim?.images) { if (!text) { p.close(); toast('This view cannot send images. Paste the text or upload a PDF.', 'bad'); return; } images = []; }
-        else images = images.slice(0, lim.images.maxCount);
+        else {
+          if (images.length > lim.images.maxCount) toast(`Only the first ${lim.images.maxCount} photos are read.`, 'warn');
+          images = images.slice(0, lim.images.maxCount);
+        }
       }
       p.status.lastChild.textContent = 'Claude is reading the spec tables…';
       const res = await extractFromManual({ text, images, hint: st.hint }, { signal: p.ctl.signal });
@@ -418,7 +430,7 @@ export function importManual(target, redraw) {
       };
       if (models.length === 1) pick(models[0]);
       else modal({ title: 'This manual covers several models', body: h('div', { class: 'btn-col' }, models.map((m) => h('button', { class: 'btn', onclick: (e) => { e.target.closest('.modal-wrap').remove(); pick(m); } }, `${m.brand || ''} ${m.model || 'Unnamed'} · Fs ${m.fs ?? '?'} · Re ${m.re ?? '?'} Ω`))) });
-    } catch (e) { p.close(); if (e?.code !== 'cancelled') toast(errorText(e), 'bad'); }
+    } catch (e) { p.close(); aiFailed(e); }
   } }] });
 }
 function aiVehicleDialog() {
@@ -442,6 +454,6 @@ function aiVehicleDialog() {
         locations: (res.locations || []).map((l, i) => ({ id: `loc${i + 1}`, ...l })), notes: `AI estimate (${res.confidence || 'unknown'} confidence). ${res.notes || ''} Measure before building.` };
       delete draft.confidence;
       editItem('vehicles', draft, { banner: h('div', { class: 'note warn' }, h('b', null, 'Estimated sizes. '), 'Measure your vehicle and correct these before you build.') });
-    } catch (e) { p.close(); if (e?.code !== 'cancelled') toast(errorText(e), 'bad'); }
+    } catch (e) { p.close(); aiFailed(e); }
   } }] });
 }

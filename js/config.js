@@ -6,4 +6,6 @@ export const SUPABASE = {
   // Turn a provider on here after enabling it in Supabase → Authentication → Sign In / Providers.
   providers: { google: true, azure: true, apple: false },
   email: true,
+  // The website's AI server (api/ai.js, deployed with the site on Vercel). Empty turns the AI features off on the website.
+  ai: '/api/ai',
 };
