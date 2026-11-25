@@ -1,6 +1,7 @@
 // Subwoofer, amplifier and vehicle libraries: browse, detail, add/edit, AI lookup, manual import.
 import { h, clear, units, numField, textField, selectField, toast, modal, confirmBox, safeUrl, uid, n1, fracIn, local } from './ui.js';
-import { all, save, remove, builtin, storeState, allSubs, allAmps, allVehicles } from './store.js';
+import { all, save, remove, builtin, storeState, allSubs, allAmps, allVehicles, needsSignIn, isMine } from './store.js';
+import { signInDialog } from './account.js';
 import * as P from './physics.js';
 import { maxRated } from './system.js';
 import { getSample, lookupSub, extractFromManual, estimateVehicle, pdfToText, errorText, aiDisabled } from './ai.js';
@@ -110,6 +111,7 @@ const KIND_META = {
   amps: { title: 'Amplifiers', one: 'amplifier', schema: AMP_SCHEMA, list: allAmps },
   vehicles: { title: 'Vehicles', one: 'vehicle', schema: VEH_SCHEMA, list: allVehicles },
 };
+const gate = (fn) => (...a) => (needsSignIn() ? signInDialog('Sign in to add or edit entries in the shared library.') : fn(...a));
 const filters = { subs: { q: '', brand: '', size: '' }, amps: { q: '', brand: '', minW: '' }, vehicles: { q: '', cat: '', doors: '', year: '' } };
 
 // ---------------------------------------------------------------- list views
@@ -121,11 +123,11 @@ export function renderLibrary(kind) {
   const head = h('div', { class: 'page-head' },
     h('div', null, h('p', { class: 'eyebrow' }, 'Library'), h('h1', null, meta.title)),
     h('div', { class: 'btn-row' },
-      h('button', { class: 'btn primary', onclick: () => editItem(kind, null) }, `Add ${meta.one}`),
-      kind === 'subs' ? h('button', { class: 'btn', onclick: () => importManual() }, 'Import from a manual') : null,
-      kind === 'subs' ? h('button', { class: 'btn', onclick: () => aiLookupDialog() }, 'AI spec lookup') : null,
-      kind === 'vehicles' ? h('button', { class: 'btn', onclick: () => aiVehicleDialog() }, 'AI space estimate') : null));
-  const note = h('p', { class: 'muted' }, shared
+      h('button', { class: 'btn primary', onclick: gate(() => editItem(kind, null)) }, `Add ${meta.one}`),
+      kind === 'subs' ? h('button', { class: 'btn', onclick: gate(() => importManual()) }, 'Import from a manual') : null,
+      kind === 'subs' ? h('button', { class: 'btn', onclick: gate(() => aiLookupDialog()) }, 'AI spec lookup') : null,
+      kind === 'vehicles' ? h('button', { class: 'btn', onclick: gate(() => aiVehicleDialog()) }, 'AI space estimate') : null));
+  const note = storeState.mode === 'cloud' ? h('p', { class: 'muted' }, storeState.uid ? 'Everyone using EnclosureIQ shares this library. You can edit or remove the entries you added.' : 'Everyone using EnclosureIQ shares this library. Sign in to add your own entries.') : h('p', { class: 'muted' }, shared
     ? `Anyone with access to this page shares this library. ${storeState.readOnly ? 'You can browse it; your access level does not allow adding entries.' : 'What you add here is visible to everyone else who opens it.'}`
     : 'Built-in entries come from manufacturer manuals and spec sheets. Entries you add are saved in this browser.');
   const f = filters[kind];
@@ -199,7 +201,7 @@ function cardActions(kind, x) {
   return h('div', { class: 'btn-row card-actions' },
     h('button', { class: 'btn btn-sm primary', onclick: () => useInDesign(kind, x) }, 'Use in design'),
     h('button', { class: 'btn btn-sm', onclick: () => showDetail(kind, x) }, 'Details'),
-    h('button', { class: 'btn btn-sm ghost', onclick: () => editItem(kind, x) }, 'Edit'));
+    h('button', { class: 'btn btn-sm ghost', onclick: gate(() => editItem(kind, x)) }, 'Edit'));
 }
 async function useInDesign(kind, x) {
   const { setDs, go, app } = await import('./app.js');
@@ -238,9 +240,9 @@ function showDetail(kind, x) {
   });
   if (kind === 'vehicles') body.append(h('div', { class: 'card' }, h('h3', null, 'Install locations'), h('ul', { class: 'loc-list' }, (x.locations || []).map((l) => h('li', null, h('b', null, l.name), ` ${l.shape === 'wedge' ? 'wedge' : 'box'}: ${units.fmtLen(l.w)} W × ${units.fmtLen(l.h)} H × ${units.fmtLen(l.d)}${l.shape === 'wedge' ? ` / ${units.fmtLen(l.dTop)}` : ''} D`, l.openingW ? ` · opening ${units.fmtLen(l.openingW)} × ${units.fmtLen(l.openingH)}` : '', l.notes ? h('div', { class: 'muted small' }, l.notes) : null)))));
   modal({ title: `${x.brand || x.make || ''} ${x.model}`, body, wide: true, actions: [
-    ...(x._builtin && x._edited ? [{ label: 'Reset to manufacturer data', onClick: async (c) => { await remove(kind, x.id); c(); toast('Restored the original data.'); } }] : []),
-    ...(x._custom ? [{ label: 'Delete', kind: 'danger', onClick: async (c) => { if (await confirmBox(`Delete ${x.model}?`, 'This removes it from the shared library for everyone.')) { await remove(kind, x.id); c(); toast('Deleted.'); } } }] : []),
-    { label: 'Edit', onClick: (c) => { c(); editItem(kind, x); } },
+    ...(x._builtin && x._edited && isMine(x) ? [{ label: 'Reset to manufacturer data', onClick: async (c) => { try { await remove(kind, x.id); c(); toast('Restored the original data.'); } catch (e) { toast(e?.message || 'Could not reset.', 'bad'); } } }] : []),
+    ...(x._custom && isMine(x) ? [{ label: 'Delete', kind: 'danger', onClick: async (c) => { if (await confirmBox(`Delete ${x.model}?`, 'This removes it from the shared library for everyone.')) { try { await remove(kind, x.id); c(); toast('Deleted.'); } catch (e) { toast(e?.message || 'Could not delete.', 'bad'); } } } }] : []),
+    { label: 'Edit', onClick: (c) => { c(); gate(() => editItem(kind, x))(); } },
     { label: 'Use in design', kind: 'primary', onClick: (c) => { c(); useInDesign(kind, x); } },
   ] });
 }
@@ -278,7 +280,10 @@ export function editItem(kind, item, opts = {}) {
       if (kind === 'subs' && !(draft.fs && (draft.qts || (draft.qes && draft.qms)) && (draft.vas || (draft.cms && draft.sd)))) { toast('A sub needs at least Fs, Qts (or Qes + Qms) and Vas to be simulated.', 'bad'); return; }
       if (kind === 'vehicles') normalizeYears(draft);
       try { await save(kind, draft); c(); toast(isNew ? 'Added to the library.' : 'Saved.', 'good'); opts.onSaved?.(draft); }
-      catch { toast('Could not save. You may not have permission to add to this shared library.', 'bad'); }
+      catch (e) {
+        if (e?.code === 'signin') { signInDialog('Sign in to save to the shared library.'); return; }
+        toast(e?.message && e.code ? e.message : 'Could not save. You may not have permission to add to this shared library.', 'bad');
+      }
     } },
   ] });
 }
