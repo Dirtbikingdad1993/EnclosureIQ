@@ -1,0 +1,238 @@
+[
+  {
+    "id": "jl-10w3v3-4", "brand": "JL Audio", "model": "10W3v3-4", "series": "W3v3",
+    "size": 10, "shape": "round", "coils": 1, "coilOhms": 4, "paramWiring": "single",
+    "rms": 500, "peak": null, "ampMin": 150, "ampMax": 500, "sens": 84.87,
+    "fs": 31.49, "qts": 0.485, "qes": 0.523, "qms": 7.017, "vas": 32.23, "sd": 345, "xmax": 14.0,
+    "re": 3.567, "le": null, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": null, "xmech": null,
+    "overallDia": 10.5, "cutout": 9.0625, "boltCircle": 9.7, "motorDia": 5.25, "mountDepth": 5.93,
+    "displacement": 0.049, "weight": 12.25, "ventClearance": null,
+    "cone": "Mineral-filled polypropylene", "surround": "Rubber", "basket": "Cast alloy", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 0.625, "f3": 46.9, "fc": 52.9, "qtc": 0.818, "ext": { "w": 17.875, "h": 11, "d": 9 }, "t": 0.75 },
+      "ported": { "vol": 1.125, "fb": 31.8, "f3": 31.7, "port": { "type": "slot", "w": 1.25, "h": 10.5, "len": 28.625 }, "ext": { "w": 23, "h": 12, "d": 13 }, "t": 0.75 }
+    },
+    "source": { "label": "JL Audio 10W3v3 owner's manual", "url": "https://assets.sonicelectronix.com/manuals/jlaudio/subwoofers/10w3v3_manual.pdf", "verified": true },
+    "notes": "Enclosure dimensions assume 3/4 in. material. Net volumes exclude driver, port and brace displacement."
+  },
+  {
+    "id": "jl-12w3v3-4", "brand": "JL Audio", "model": "12W3v3-4", "series": "W3v3",
+    "size": 12, "shape": "round", "coils": 1, "coilOhms": 4, "paramWiring": "single",
+    "rms": 500, "peak": null, "ampMin": 150, "ampMax": 500, "sens": 87.15,
+    "fs": 26.72, "qts": 0.444, "qes": 0.472, "qms": 7.572, "vas": 80.54, "sd": 520, "xmax": 13.0,
+    "re": 3.563, "le": null, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": null, "xmech": null,
+    "overallDia": 12.5, "cutout": 11.0625, "boltCircle": 11.7, "motorDia": 5.5, "mountDepth": 6.65,
+    "displacement": 0.071, "weight": 14.5, "ventClearance": null,
+    "cone": "Mineral-filled polypropylene", "surround": "Rubber", "basket": "Cast alloy", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 1.125, "f3": 43.7, "fc": 50.2, "qtc": 0.83, "ext": { "w": 23, "h": 14, "d": 9.25 }, "t": 0.75 },
+      "ported": { "vol": 1.75, "fb": 30, "f3": 35, "port": { "type": "slot", "w": 1.375, "h": 12.5, "len": 26.125 }, "ext": { "w": 29, "h": 14, "d": 12.625 }, "t": 0.75 }
+    },
+    "source": { "label": "JL Audio 12W3v3 owner's manual", "url": "https://www.customsounds.com/uploads/docs/46cd09f3e0692d7d2eda3d9b9007fb0822ebcccd.pdf", "verified": true },
+    "notes": "Port extension length (EL) 13.5 in. Dealer listings show a 26.8125 in. slot length; the printed manual shows 26.125 in."
+  },
+  {
+    "id": "jl-10w6v3-d4", "brand": "JL Audio", "model": "10W6v3-D4", "series": "W6v3",
+    "size": 10, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 600, "peak": null, "ampMin": 200, "ampMax": 600, "sens": null,
+    "fs": 30.12, "qts": 0.513, "qes": 0.543, "qms": 9.228, "vas": 23.25, "sd": 318, "xmax": 19.0,
+    "re": 6.452, "le": null, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": null, "xmech": null,
+    "overallDia": 10.5, "cutout": 9.02, "boltCircle": 9.86, "motorDia": 6.76, "mountDepth": 6.89,
+    "displacement": 0.078, "weight": null, "ventClearance": 0.5,
+    "cone": "Mineral-filled polypropylene", "surround": "Rubber", "basket": "Cast alloy", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 0.55, "f3": 42.27, "fc": 47.55, "qtc": 0.8099, "ext": { "w": 12.5, "h": 12.5, "d": 10.5 }, "t": 0.75 },
+      "ported": { "vol": 0.75, "fb": 39, "f3": 33, "port": { "type": "slot", "w": 1.375, "h": 10.875, "len": 30.4 }, "ext": { "w": 21.5, "h": 12.375, "d": 11.125 }, "t": 0.75 }
+    },
+    "source": { "label": "JL Audio W6v3 specifications (Garmin/JL product page)", "url": "https://ph.garmin.com/products/audio/jl-12w6v3-d4", "verified": true },
+    "notes": "Re is measured with voice coils in series. Needs 0.5 in. pole-vent clearance behind the motor. Port extension length 16.5 in."
+  },
+  {
+    "id": "jl-12w6v3-d4", "brand": "JL Audio", "model": "12W6v3-D4", "series": "W6v3",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 600, "peak": null, "ampMin": 200, "ampMax": 600, "sens": 85.4,
+    "fs": 26.919, "qts": 0.463, "qes": 0.487, "qms": 9.365, "vas": 54.37, "sd": 486, "xmax": 19.0,
+    "re": 6.493, "le": null, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": null, "xmech": null,
+    "overallDia": 12.5, "cutout": 11.02, "boltCircle": 11.86, "motorDia": 7.0, "mountDepth": 7.52,
+    "displacement": 0.105, "weight": 25.6, "ventClearance": 0.5,
+    "cone": "Mineral-filled polypropylene", "surround": "Rubber", "basket": "Cast alloy", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 1.0, "f3": 41.62, "fc": 45.99, "qtc": 0.7912, "ext": { "w": 15, "h": 15, "d": 12 }, "t": 0.75 },
+      "ported": { "vol": 1.3, "fb": 33, "f3": 31, "port": { "type": "slot", "w": 1.75, "h": 12.5, "len": 37.125 }, "ext": { "w": 27, "h": 14, "d": 12.5 }, "t": 0.75 }
+    },
+    "source": { "label": "JL Audio 12W6v3 owner's manual", "url": "https://static.garmin.com/pumac/12W6v3_MAN.pdf", "verified": true },
+    "notes": "Re is measured with voice coils in series; divide by 4 for parallel. Needs 0.5 in. pole-vent clearance. Port extension length 21.25 in."
+  },
+  {
+    "id": "jl-12w7ae-3", "brand": "JL Audio", "model": "12W7AE-3", "series": "W7AE",
+    "size": 12, "shape": "round", "coils": 1, "coilOhms": 3, "paramWiring": "single",
+    "rms": 1000, "peak": null, "ampMin": 400, "ampMax": 1000, "sens": 86.2,
+    "fs": 27.2, "qts": 0.482, "qes": 0.514, "qms": 7.807, "vas": 66.0, "sd": 542, "xmax": 29.0,
+    "re": 2.47, "le": null, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": null, "xmech": null,
+    "overallDia": 12.5, "cutout": 10.5, "boltCircle": 11.27, "motorDia": 7.5, "mountDepth": 9.5,
+    "displacement": 0.14, "weight": 45, "ventClearance": null,
+    "cone": "Mineral-filled polypropylene", "surround": "Rubber", "basket": "Cast alloy", "magnet": "Neodymium/ferrite hybrid",
+    "factory": {
+      "sealed": { "vol": 1.375, "f3": 40.4, "fc": 44.7, "qtc": 0.791, "ext": { "w": 15, "h": 15, "d": 16.125 }, "t": 0.75, "baffle": 1.0 },
+      "ported": { "vol": 1.75, "fb": null, "f3": null, "port": null, "ext": null }
+    },
+    "source": { "label": "JL Audio 12W7AE-3 specifications (authorized dealer listing)", "url": "https://creativeaudio.net/12w7ae-3", "verified": true },
+    "notes": "Sealed box uses a 1.0 in. front baffle. JL lists 1.75 cu ft as the ported volume; tuning and port details are in the owner's manual."
+  },
+  {
+    "id": "rf-p3d4-12", "brand": "Rockford Fosgate", "model": "P3D4-12", "series": "Punch P3",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 600, "peak": 1200, "ampMin": null, "ampMax": 600, "sens": 85,
+    "fs": 27.7, "qts": 0.52, "qes": 0.57, "qms": 5.6, "vas": 57.7, "sd": 570, "xmax": 15.9,
+    "re": 6.4, "le": 6.94, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": 2.5, "xmech": null,
+    "overallDia": null, "cutout": 11.25, "boltCircle": null, "motorDia": null, "mountDepth": 6.66,
+    "displacement": 0.106, "weight": null, "ventClearance": null,
+    "cone": "Anodized aluminum", "surround": "Santoprene rubber", "basket": "StampCast", "magnet": "Ferrite (96 oz)",
+    "factory": {
+      "sealed": { "vol": 1.02, "min": 0.75, "max": 1.25, "f3": null, "qtc": null },
+      "ported": { "vol": 1.79, "fb": 40, "f3": 32.8, "port": { "type": "round", "dia": 4, "count": 1, "len": 10 }, "ext": { "w": 25, "h": 14, "d": 12 }, "t": 0.75 }
+    },
+    "source": { "label": "Rockford Fosgate P3D4-12 product page and P3-DVC manual", "url": "https://rockfordfosgate.com/products/details/p3d4-12", "verified": true },
+    "notes": "Driver displacement corrected to 0.106 cu ft per Rockford's 2016 displacement advisory. Klippel-verified parameters."
+  },
+  {
+    "id": "rf-r2d4-12", "brand": "Rockford Fosgate", "model": "R2D4-12", "series": "Prime R2",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 250, "peak": 500, "ampMin": null, "ampMax": 250, "sens": 89,
+    "fs": 34.9, "qts": 0.6, "qes": 0.66, "qms": 7.33, "vas": 68.8, "sd": 539.1, "xmax": 6.5,
+    "re": 7.17, "le": 3.9, "bl": null, "mms": null, "cms": null, "rmsMech": null, "vcDia": 2, "xmech": null,
+    "overallDia": 12.97, "cutout": 11.25, "boltCircle": 12.28, "motorDia": null, "mountDepth": 5.067,
+    "displacement": 0.046, "weight": null, "ventClearance": null,
+    "cone": "Mica-reinforced polypropylene", "surround": "Rubber", "basket": "StampCast", "magnet": "Ferrite (47.7 oz)",
+    "factory": {
+      "sealed": { "vol": 1.02, "min": 0.75, "max": 1.25, "f3": 51.4, "qtc": 0.94, "ext": { "w": 18.5, "h": 17.5, "d": 8.25 }, "t": 0.75 },
+      "ported": { "vol": 1.79, "fb": 45, "f3": 39.4, "port": { "type": "round", "dia": 4, "count": 1, "len": 9.3 }, "ext": { "w": 20.5, "h": 16.5, "d": 13 }, "t": 0.75 }
+    },
+    "source": { "label": "Rockford Fosgate R2D4-12 product page and Prime R2 manual", "url": "https://rockfordfosgate.com/products/details/r2d4-12/", "verified": true },
+    "notes": "Product page lists 89 dB; the 2011 manual lists 87 dB for the 12 in. model. Rockford recommends a subsonic filter on vented boxes."
+  },
+  {
+    "id": "kicker-l7s124", "brand": "Kicker", "model": "44L7S124 (L7S 12\")", "series": "Solo-Baric L7S",
+    "size": 12, "shape": "square", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 750, "peak": 1500, "ampMin": null, "ampMax": 750, "sens": 88.6,
+    "fs": 31.54, "qts": 0.6642, "qes": 0.7076, "qms": 10.9542, "vas": 57.69, "sd": 645.16, "xmax": 19.25,
+    "re": 6.862, "le": 6.51, "bl": 22.3988, "mms": 260.68, "cms": 0.098, "rmsMech": 4.7172, "vcDia": null, "xmech": null,
+    "overallDia": null, "cutout": 11.0625, "boltCircle": null, "motorDia": null, "mountDepth": 6.6875,
+    "displacement": null, "weight": null, "ventClearance": null,
+    "cone": "Injection-molded polypropylene (square)", "surround": "Santoprene rubber", "basket": "Cast aluminum", "magnet": "Ceramic",
+    "factory": {
+      "sealed": { "vol": 1.25, "min": 0.88, "max": 2.0 },
+      "ported": { "vol": 2.25, "min": 1.75, "max": 3.25, "fb": null }
+    },
+    "source": { "label": "Kicker Thiele/Small parameters page (Klippel) and L7S spec sheet", "url": "http://www.kicker.com/app/tsparam/44L7S124.html", "verified": true },
+    "notes": "Square cone: cutout is an 11-1/16 in. square, not a circle. Kicker publishes min/max box volume ranges; the middle value is shown as the starting point."
+  },
+  {
+    "id": "kicker-cwr124", "brand": "Kicker", "model": "48CWR124 (CompR 12\")", "series": "CompR",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 500, "peak": 1000, "ampMin": 250, "ampMax": 500, "sens": 86.69,
+    "fs": 30.25, "qts": 0.6025, "qes": 0.634, "qms": 12.282, "vas": 58.38, "sd": 506.71, "xmax": 17.5,
+    "re": 6.975, "le": null, "bl": 18.9755, "mms": 172.30, "cms": 0.1605, "rmsMech": 2.6665, "vcDia": null, "xmech": null,
+    "overallDia": 12.5, "cutout": 11, "boltCircle": null, "motorDia": null, "mountDepth": 5.75,
+    "displacement": null, "weight": null, "ventClearance": null,
+    "cone": "Polypropylene", "surround": "Rubber", "basket": "Steel", "magnet": "Ferrite",
+    "factory": { "sealed": null, "ported": null },
+    "source": { "label": "Kicker Thiele/Small parameters page (Klippel) and CWR manual", "url": "http://www.kicker.com/app/tsparam/48CWR124.html", "verified": true },
+    "notes": "Factory box tables are printed in the CWR owner's manual. Add them here, or use AI lookup."
+  },
+  {
+    "id": "sundown-sa12v2-d2", "brand": "Sundown Audio", "model": "SA-12 v.2 D2", "series": "SA v.2",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 2, "paramWiring": "series",
+    "rms": 1250, "peak": 2500, "ampMin": null, "ampMax": 1250, "sens": 86.59,
+    "fs": 38.89, "qts": 0.4558, "qes": 0.507, "qms": 4.5133, "vas": 26.29, "sd": 735.5, "xmax": 19,
+    "re": 3.91, "le": 3.18, "bl": 21.99, "mms": 256.55, "cms": 0.06529, "rmsMech": null, "vcDia": 2.75, "xmech": null,
+    "overallDia": 12.83, "cutout": 11.01, "boltCircle": null, "motorDia": 9.68, "mountDepth": 7.5,
+    "displacement": 0.11, "weight": null, "ventClearance": null,
+    "cone": "Paper", "surround": "Foam", "basket": "Stamped steel with cast spacer", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 1.0 },
+      "ported": { "vol": 1.75, "fb": 35, "port": { "type": "slot", "area": 26 } },
+      "bp4": { "rear": 0.75, "front": 2.25, "portArea": 15, "portLen": 6 }
+    },
+    "source": { "label": "Sundown Audio SA-12 v.2 product page", "url": "https://sundownaudio.com/products/sundown-audio-sa-series-v-2-12-1000w-car-audio-subwoofer-sub", "verified": true },
+    "notes": "Published Sd (735.5 cm²) does not agree with the published Vas and Cms, which imply about 535 cm². Check with Sundown before relying on Sd."
+  },
+  {
+    "id": "sundown-sa12v2-d4", "brand": "Sundown Audio", "model": "SA-12 v.2 D4", "series": "SA v.2",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 4, "paramWiring": "series",
+    "rms": 1250, "peak": 2500, "ampMin": null, "ampMax": 1250, "sens": 85.03,
+    "fs": 33.6, "qts": 0.4443, "qes": 0.4996, "qms": 4.0178, "vas": 28.06, "sd": 735.5, "xmax": 19,
+    "re": 6.35, "le": 4.64, "bl": 29.39, "mms": 321.84, "cms": 0.0697, "rmsMech": null, "vcDia": 2.75, "xmech": null,
+    "overallDia": 12.83, "cutout": 11.01, "boltCircle": null, "motorDia": 9.68, "mountDepth": 7.5,
+    "displacement": 0.11, "weight": null, "ventClearance": null,
+    "cone": "Paper", "surround": "Foam", "basket": "Stamped steel with cast spacer", "magnet": "Ferrite",
+    "factory": {
+      "sealed": { "vol": 1.0 },
+      "ported": { "vol": 1.75, "fb": 35, "port": { "type": "slot", "area": 26 } },
+      "bp4": { "rear": 0.75, "front": 2.25, "portArea": 15, "portLen": 6 }
+    },
+    "source": { "label": "Sundown Audio SA-12 v.2 product page", "url": "https://sundownaudio.com/products/sundown-audio-sa-series-v-2-12-1000w-car-audio-subwoofer-sub", "verified": true },
+    "notes": "Same Sd caveat as the D2 version."
+  },
+  {
+    "id": "skar-evl12-d2", "brand": "Skar Audio", "model": "EVL-12 D2", "series": "EVL",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 2, "paramWiring": "series",
+    "rms": 1250, "peak": 2500, "ampMin": null, "ampMax": 1250, "sens": 85.1,
+    "fs": 32.2, "qts": 0.42, "qes": 0.51, "qms": 4.83, "vas": 19.1, "sd": 471, "xmax": 23.5,
+    "re": 7.0, "le": 6.3, "bl": 27, "mms": 261, "cms": 0.061, "rmsMech": 10.9, "vcDia": 3, "xmech": null,
+    "overallDia": 12.5, "cutout": 11.22, "boltCircle": null, "motorDia": 7.09, "mountDepth": 7.61,
+    "displacement": 0.14, "weight": null, "ventClearance": null,
+    "cone": "Pressed paper", "surround": "Foam", "basket": "Stamped steel", "magnet": "Ferrite (double stack)",
+    "factory": {
+      "sealed": { "vol": 1.75 },
+      "ported": null
+    },
+    "source": { "label": "Loudspeaker Database (Skar Audio EVL-12 D2) and Skar spec sheet", "url": "https://loudspeakerdatabase.com/Skar/EVL-12_D2", "verified": true },
+    "notes": "Re and Bl are for voice coils in series. Skar's box info tab lists ported recommendations."
+  },
+  {
+    "id": "skar-vxf12-d2", "brand": "Skar Audio", "model": "VXF-12 D2", "series": "VXF",
+    "size": 12, "shape": "round", "coils": 2, "coilOhms": 2, "paramWiring": "series",
+    "rms": 1500, "peak": 3000, "ampMin": null, "ampMax": 1500, "sens": 86.8,
+    "fs": 32.1, "qts": 0.32, "qes": 0.35, "qms": 4.85, "vas": 35.4, "sd": 471, "xmax": 25,
+    "re": 4.0, "le": 3.35, "bl": 23.3, "mms": 234, "cms": 0.112, "rmsMech": 9.72, "vcDia": 3, "xmech": null,
+    "overallDia": 12.5, "cutout": 11.02, "boltCircle": null, "motorDia": 8.58, "mountDepth": 8.5,
+    "displacement": 0.14, "weight": null, "ventClearance": null,
+    "cone": "Pressed paper", "surround": "Foam", "basket": "Stamped steel", "magnet": "Ferrite (300 oz)",
+    "factory": { "sealed": null, "ported": null },
+    "source": { "label": "Loudspeaker Database (Skar Audio VXF-12 D2) and Skar spec sheet", "url": "https://loudspeakerdatabase.com/Skar/VXF-12_D2", "verified": true },
+    "notes": "Low Qts (0.32) suits a ported box. Re and Bl are for voice coils in series."
+  },
+  {
+    "id": "dayton-rss315hf-4", "brand": "Dayton Audio", "model": "RSS315HF-4", "series": "Reference HF",
+    "size": 12, "shape": "round", "coils": 1, "coilOhms": 4, "paramWiring": "single",
+    "rms": 400, "peak": 800, "ampMin": null, "ampMax": 400, "sens": 86.0,
+    "fs": 24.2, "qts": 0.39, "qes": 0.45, "qms": 2.83, "vas": 84.1, "sd": 514.7, "xmax": 14.3,
+    "re": 3.1, "le": 0.96, "bl": 13.99, "mms": 188, "cms": 0.23, "rmsMech": 10.1, "vcDia": 2.5, "xmech": null,
+    "overallDia": 12.36, "cutout": 11.1, "boltCircle": 11.61, "motorDia": null, "mountDepth": 5.75,
+    "displacement": null, "weight": 25, "ventClearance": null,
+    "cone": "Black anodized aluminum", "surround": "Rubber", "basket": "Steel", "magnet": "Ferrite (150 oz)",
+    "factory": {
+      "sealed": { "vol": 0.71, "f3": 53 },
+      "ported": { "vol": 2.04, "f3": 30, "fb": null }
+    },
+    "source": { "label": "Dayton Audio RSS315HF-4 product page", "url": "https://www.daytonaudio.com/product/121/rss315hf-4-12-reference-hf-subwoofer-4-ohm", "verified": true },
+    "notes": "Home-audio driver. Sensitivity converted from 90.3 dB @ 2.83 V/1 m. Dayton's box sizes are BassBox optimums; Parts Express suggests 1.0 cu ft sealed / 2.1 cu ft vented."
+  },
+  {
+    "id": "dayton-um18-22", "brand": "Dayton Audio", "model": "UM18-22", "series": "Ultimax",
+    "size": 18, "shape": "round", "coils": 2, "coilOhms": 2, "paramWiring": "series",
+    "rms": 1000, "peak": 2000, "ampMin": null, "ampMax": 1000, "sens": 86.8,
+    "fs": 19.5, "qts": 0.53, "qes": 0.62, "qms": 3.82, "vas": 212, "sd": 1219, "xmax": 22,
+    "re": 4.4, "le": 2.22, "bl": 23.8, "mms": 655, "cms": 0.1, "rmsMech": null, "vcDia": 3, "xmech": null,
+    "overallDia": 18.19, "cutout": 16.75, "boltCircle": null, "motorDia": null, "mountDepth": 9.76,
+    "displacement": null, "weight": 44.3, "ventClearance": null,
+    "cone": "Nomex", "surround": "Rubber", "basket": "Cast aluminum", "magnet": "Ferrite (triple stack)",
+    "factory": {
+      "sealed": { "vol": 4.0, "f3": 30 },
+      "ported": { "vol": 6.0, "f3": 20, "fb": null }
+    },
+    "source": { "label": "Dayton Audio UM18-22 product page", "url": "https://daytonaudio.vortxhosting.com/product/1210/um18-22-18-ultimax-dvc-subwoofer-2-ohm-per-coil", "verified": true },
+    "notes": "All parameters measured with voice coils in series. An earlier spec sheet revision lists different values (Fs 26.2 Hz, Vas 144.7 L)."
+  }
+]
