@@ -10,6 +10,8 @@ import { renderLibrary } from './library.js';
 import { renderPlans } from './plans.js';
 import { renderGuides } from './guides.js';
 import { openAssistant, assistantButton } from './assistant.js';
+import { accountButton, signInDialog } from './account.js';
+import { cloud } from './auth.js';
 
 // ---------------------------------------------------------------- state
 export const app = {
@@ -52,11 +54,12 @@ function shell() {
           svgEl(`<svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="14" cy="16" r="7" fill="none" stroke="var(--accent)" stroke-width="2.4"/><circle cx="14" cy="16" r="2.2" fill="var(--accent)"/><rect x="24" y="9" width="2.4" height="14" fill="currentColor"/></svg>`),
           h('span', { class: 'brand-name' }, 'Enclosure', h('b', null, 'IQ')), h('span', { class: 'brand-sub' }, 'sub box designer')),
         nav,
-        h('div', { class: 'topbar-tools' }, h('span', { class: 'units-slot' }, unitsSeg), assistantButton()))),
+        h('div', { class: 'topbar-tools' }, h('span', { class: 'units-slot' }, unitsSeg), accountButton(), assistantButton()))),
     h('main', { id: 'view', class: 'view' }),
     h('footer', { class: 'foot' }, h('p', null, 'Simulations use Thiele/Small small-signal models; real cars, boxes and drivers vary. Check factory data against the manual before cutting wood.')));
 }
-function shellUnits() { return seg({ small: true, label: 'Units', value: units.sys, options: [{ value: 'imperial', label: 'in' }, { value: 'metric', label: 'mm' }], onChange: (v) => { units.set(v); document.querySelector('.units-slot').replaceChildren(shellUnits()); render(); } }); }
+function shellUnits() { return seg({ small: true, label: 'Units', value: units.sys, options: [{ value: 'imperial', label: 'in' }, { value: 'metric', label: 'mm' }], onChange: (v) => { units.set(v); document.querySelector('.units-slot').replaceChildren(shellUnits()); render(); if (cloud.user) cloud.saveProfile({ prefs: { units: v } }).catch(() => {}); } }); }
+document.addEventListener('bw:units', () => { document.querySelector('.units-slot')?.replaceChildren(shellUnits()); render(); });
 
 function route() {
   const v = (location.hash || '#design').slice(1);
@@ -454,14 +457,19 @@ function viewCard(r) {
 async function saveCurrent() {
   const ds = app.ds;
   if (!ds.id) ds.id = uid('d');
-  try { await saveDesign(ds); local.set('bw.draft', ds); toast(storeState.db && storeState.uid ? 'Saved to your designs.' : 'Saved in this browser.', 'good'); }
-  catch { toast('Could not save. Check your connection and try again.', 'bad'); }
+  try {
+    await saveDesign(ds); local.set('bw.draft', ds);
+    if (storeState.mode === 'cloud' && !storeState.uid) toast('Saved in this browser. Sign in to keep it in your account.', 'good');
+    else toast(storeState.uid ? 'Saved to your account.' : 'Saved in this browser.', 'good');
+  } catch (e) { toast(e?.message || 'Could not save. Check your connection and try again.', 'bad'); }
 }
 function savedView() {
   const list = allDesigns();
   const wrap = h('div', null, h('div', { class: 'page-head' }, h('div', null, h('p', { class: 'eyebrow' }, 'Saved'), h('h1', null, 'Your designs')),
     h('div', { class: 'btn-row' }, h('button', { class: 'btn', onclick: saveCurrent }, 'Save current design'))),
-    h('p', { class: 'muted' }, storeState.db && storeState.uid ? 'Designs saved here are private to you and follow you to any device you open this page on.' : 'Designs are saved in this browser.'));
+    storeState.mode === 'cloud' && !storeState.uid
+      ? h('div', { class: 'card signin-cta' }, h('div', null, h('b', null, 'Keep your designs in an account'), h('p', { class: 'muted small' }, 'They are saved in this browser for now. Sign in with Google, Microsoft or an email link and they move to your account, on every device.')), h('button', { class: 'btn primary', onclick: () => signInDialog() }, 'Sign in'))
+      : h('p', { class: 'muted' }, storeState.uid ? 'Designs saved here are private to your account and follow you to any device you sign in on.' : 'Designs are saved in this browser.'));
   if (!list.length) { wrap.append(h('div', { class: 'card empty' }, h('h3', null, 'No saved designs yet'), h('p', null, 'Build a box on the Design tab and press "Save design". It will show up here.'))); return wrap; }
   wrap.append(h('div', { class: 'lib-grid' }, list.map((d) => {
     const s = getSub(d.subId);
@@ -484,12 +492,18 @@ async function boot() {
   await initStore();
   recompute();
   window.addEventListener('hashchange', route);
-  onStoreChange(() => {
-    recompute();
-    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
-    if (document.querySelector('.modal-wrap')) return; // don't yank the page from under an open dialog
-    if (app.view !== 'design' || !typing) render(); else renderResults();
-  });
+  let storeTimer = null;
+  const onStore = () => {
+    clearTimeout(storeTimer);
+    // wait for a dialog that is closing after a save; never redraw the page under an open dialog
+    storeTimer = setTimeout(() => {
+      if (document.querySelector('.modal-wrap')) { storeTimer = setTimeout(onStore, 400); return; }
+      recompute();
+      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+      if (app.view !== 'design' || !typing) render(); else renderResults();
+    }, 60);
+  };
+  onStoreChange(onStore);
   route();
 }
 boot();
