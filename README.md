@@ -20,7 +20,7 @@ A subwoofer enclosure designer for cars and trucks that works on desktop and pho
 - **Whole system:** every series/parallel wiring option for the chosen subs, amp power at each load (interpolated in 1/Z), load-stability check, current draw, power-wire gauge (0.5 V drop rule) and fuse size.
 - **Libraries:** subwoofers, amplifiers and vehicles. Built-in entries come from manufacturer manuals and spec sheets (sources listed in each entry). Users can add, edit and reset entries. Published T/S values are cross-checked against each other and conflicts are flagged.
 - **AI (when opened on claude.ai):** spec lookup, reading specs from an uploaded manual (PDF text or photos), vehicle space estimates, and a design assistant that reads and changes the design through page tools.
-- **Guides & FAQ:** 11 how-to guides and 17 FAQ answers.
+- **Guides & FAQ:** 17 detailed how-to guides (tools, steps, tips, common mistakes) with photos and diagrams, plus 19 FAQ answers.
 
 ## Run it locally
 
@@ -55,3 +55,14 @@ Then open http://localhost:8765/dev.html. Outside claude.ai the libraries and sa
 - The model was checked against JL Audio's published 12W3v3-4 data: sealed Qtc 0.834 vs 0.83, Fc 50.2 Hz vs 50.2 Hz, F3 43.7 Hz vs 43.7 Hz; ported box width 28.96" vs 29"; port length 25.8" vs 26.1".
 - Vehicle entries are typical sizes per vehicle type, not measurements of specific models. Measure your vehicle.
 - Simulations are small-signal estimates. Real results depend on build quality, driver tolerances, power compression and the cabin.
+
+## Photo credits
+
+Guide photos come from Wikimedia Commons, resized only:
+
+- `img/infinite-baffle-18in.jpg`: [Large infinite baffle subwoofer with 18 inch woofer driver](https://commons.wikimedia.org/wiki/File:Large_infinite_baffle_subwoofer_with_18_inch_woofer_driver.JPG) by Daniel Christensen, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+- `img/homemade-15in-box.jpg`: [Loudspeaker enclosure](https://commons.wikimedia.org/wiki/File:Loudspeaker_enclosure.jpg) by Daniel Christensen, [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+- `img/internal-bracing.jpg`: [Subwoofer cab internal bracing](https://commons.wikimedia.org/wiki/File:Subwoofer_cab_internal_bracing.jpg) by B137, [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+- `img/sub-and-enclosure.jpg`: [Subwoofer driver and enclosure](https://commons.wikimedia.org/wiki/File:Subwoofer_driver_and_enclosure.jpg) by B137, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+
+Diagrams in `js/illustrations.js` are original to this project.
