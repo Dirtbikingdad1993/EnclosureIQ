@@ -4,6 +4,7 @@ import { SUPABASE } from './config.js';
 
 const LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 let sbPromise = null;
+let settingsPromise = null;
 let user = null;
 let ready = false;
 let justReturned = false;
@@ -35,6 +36,23 @@ export const cloud = {
     return sbPromise;
   },
   onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+
+  /**
+   * The sign-in methods to offer: switched on in config.js AND switched on in Supabase right now
+   * (Supabase publishes this at /auth/v1/settings). If Supabase can't be reached, config.js decides.
+   */
+  signInOptions() {
+    if (!settingsPromise) {
+      settingsPromise = fetch(`${SUPABASE.url}/auth/v1/settings`, { headers: { apikey: SUPABASE.key } })
+        .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        .then((s) => {
+          const on = (k) => (s?.external ? !!s.external[k] : true);
+          const providers = Object.fromEntries(Object.entries(SUPABASE.providers || {}).map(([k, v]) => [k, !!v && on(k)]));
+          return { providers, email: !!SUPABASE.email && on('email'), checked: !!s?.external };
+        });
+    }
+    return settingsPromise;
+  },
 
   async init() {
     if (!this.enabled) { ready = true; return; }

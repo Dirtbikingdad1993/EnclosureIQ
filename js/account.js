@@ -16,31 +16,42 @@ export function signInDialog(reason) {
     status.textContent = 'Opening sign-in…';
     try { await cloud.signInWith(provider); } catch (e) { status.textContent = ''; toast(e?.message || 'Sign-in could not start. Try again.', 'bad'); }
   };
-  const btn = (provider, label) => {
-    const on = cloud.providers?.[provider];
-    return h('button', { class: `btn sso sso-${provider}`, disabled: !on, onclick: on ? go(provider) : null },
-      h('span', { class: 'sso-logo' }), label, !on ? h('em', null, ' coming soon') : null);
+  const ssoButton = (provider, label) => {
+    const b = h('button', { class: `btn sso sso-${provider}`, onclick: go(provider) }, h('span', { class: 'sso-logo' }), label);
+    b.querySelector('.sso-logo').innerHTML = LOGOS[provider];
+    return b;
   };
-  const buttons = [btn('google', 'Continue with Google'), btn('azure', 'Continue with Microsoft'), btn('apple', 'Continue with Apple')];
-  buttons.forEach((b, i) => { b.querySelector('.sso-logo').innerHTML = LOGOS[['google', 'azure', 'apple'][i]]; });
-  const emailForm = h('form', { class: 'email-signin', onsubmit: async (e) => {
-    e.preventDefault();
-    const email = st.email.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('Enter a valid email address.', 'bad'); return; }
-    status.textContent = 'Sending…';
-    try { await cloud.signInWithEmail(email); status.textContent = `Check ${email} for a sign-in link. You can close this window.`; }
-    catch (err) { status.textContent = ''; toast(err?.message?.includes('rate') ? 'Too many emails sent. Wait a few minutes and try again.' : (err?.message || 'Could not send the link.'), 'bad'); }
-  } },
-    textField({ id: 'signin-email', label: 'Or get a sign-in link by email', type: 'email', value: '', placeholder: 'you@example.com', onChange: (v) => { st.email = v; } }),
-    h('button', { class: 'btn', type: 'submit' }, 'Email me a link'));
-  emailForm.querySelector('input').addEventListener('input', (e) => { st.email = e.target.value; });
+  const emailForm = (label) => {
+    const form = h('form', { class: 'email-signin', onsubmit: async (e) => {
+      e.preventDefault();
+      const email = st.email.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('Enter a valid email address.', 'bad'); return; }
+      status.textContent = 'Sending…';
+      try { await cloud.signInWithEmail(email); status.textContent = `Check ${email} for a sign-in link (and your spam folder). You can close this window.`; }
+      catch (err) { status.textContent = ''; toast(err?.message?.includes('rate') ? 'Too many emails sent. Wait a few minutes and try again.' : (err?.message || 'Could not send the link.'), 'bad'); }
+    } },
+      textField({ id: 'signin-email', label, type: 'email', value: '', placeholder: 'you@example.com', onChange: (v) => { st.email = v; } }),
+      h('button', { class: 'btn', type: 'submit' }, 'Email me a link'));
+    form.querySelector('input').addEventListener('input', (e) => { st.email = e.target.value; });
+    return form;
+  };
+  const methods = h('div', { class: 'signin-methods' }, h('p', { class: 'muted small' }, 'Loading sign-in options…'));
   modal({ title: 'Sign in to EnclosureIQ', body: h('div', { class: 'signin' },
     reason ? h('p', { class: 'note' }, reason) : null,
     h('p', { class: 'muted' }, 'Your account keeps your saved designs and settings on every device, and lets you add subwoofers, amplifiers and vehicles to the shared library.'),
-    h('div', { class: 'btn-col sso-col' }, buttons),
-    cloud.emailEnabled ? emailForm : null,
+    methods,
     status,
     h('p', { class: 'muted small' }, 'We only use your name and email to identify your account.')) });
+  // offer only what Supabase has switched on, so no button leads to an error page
+  cloud.signInOptions().then(({ providers, email }) => {
+    const sso = [['google', 'Continue with Google'], ['azure', 'Continue with Microsoft'], ['apple', 'Continue with Apple']].filter(([p]) => providers[p]).map(([p, l]) => ssoButton(p, l));
+    clear(methods).append(...[
+      sso.length ? h('div', { class: 'btn-col sso-col' }, sso) : null,
+      email ? emailForm(sso.length ? 'Or get a sign-in link by email' : 'Your email') : null,
+      !sso.length && !email ? h('p', { class: 'note warn' }, 'Sign-in isn\'t open yet. You can still design and save in this browser.') : null,
+    ].filter(Boolean));
+    setTimeout(() => methods.querySelector('button, input')?.focus(), 30);
+  });
 }
 
 export function accountDialog() {
