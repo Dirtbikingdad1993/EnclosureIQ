@@ -37,7 +37,11 @@ The website and its AI server are hosted on **Vercel**. `vercel.json` sets every
 3. **Supabase URL settings** (Supabase dashboard → project *EnclosureIQ* → Authentication → URL Configuration): set **Site URL** to the Vercel address and add the same address under **Redirect URLs**. Email sign-in links work after this step.
 4. **Google:** in Google Cloud Console → APIs & Services → Credentials, create an *OAuth client ID* of type *Web application*. Add `https://uumnakjtqelkbjnxaxfj.supabase.co/auth/v1/callback` as an authorized redirect URI. Paste the client ID and secret into Supabase → Authentication → Sign In / Providers → Google, and turn it on.
 5. **Microsoft:** in the Microsoft Entra admin center → App registrations → New registration, choose "Accounts in any organizational directory and personal Microsoft accounts", and set the redirect URI (Web) to the same Supabase callback URL. Create a client secret. Paste the Application (client) ID and the secret *value* into Supabase → Providers → Azure, leave the tenant URL empty, and turn it on.
-6. **Apple (later):** needs an Apple Developer Program membership. Create a Services ID with Sign in with Apple, using the Supabase callback URL as the return URL. Create a key, then fill in Supabase → Providers → Apple. Finally set `apple: true` in `js/config.js`.
+6. **Apple (later):** needs an Apple Developer Program membership. Create a Services ID with Sign in with Apple, using the Supabase callback URL as the return URL. Create a key, then fill in Supabase → Providers → Apple.
+
+The sign-in window asks Supabase which methods are switched on and shows only those, so a provider appears on the site as soon as you enable it in Supabase; no code change is needed.
+
+**Email links for everyone:** Supabase's built-in mailer only sends to the email addresses of your Supabase organization's team members, and only a few per hour. To let the public sign in by email, add your own SMTP server in Supabase → Authentication → Emails → SMTP settings (for example Resend, SendGrid or Amazon SES). Until then, Google and Microsoft are how the public signs in.
 
 `js/config.js` holds the Supabase URL and the publishable key. Both are meant to be public; the database's row-level security decides what each person can do.
 
