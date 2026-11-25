@@ -9,6 +9,30 @@ const keys = (path) => (Array.isArray(path) ? path : path.split('.'));
 const get = (o, path) => keys(path).reduce((a, k) => (a == null ? a : a[k]), o);
 const set = (o, path, v) => { const ks = keys(path); let c = o; ks.slice(0, -1).forEach((k) => { if (c[k] == null || typeof c[k] !== 'object') c[k] = {}; c = c[k]; }); c[ks[ks.length - 1]] = v; };
 
+// ---------------------------------------------------------------- vehicle years
+export const YEAR_MIN = 1960, YEAR_MAX = 2026;
+export const YEARS = Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MAX - i); // newest first
+const clampYear = (y) => (y == null || y === '' || !isFinite(+y) ? null : Math.min(YEAR_MAX, Math.max(YEAR_MIN, Math.round(+y))));
+/** Year range of a vehicle from yearFrom/yearTo, or parsed from an older free-text "years" field. */
+export function yearRange(v) {
+  let from = clampYear(v?.yearFrom), to = clampYear(v?.yearTo);
+  if (from == null && to == null && v?.years) {
+    const found = String(v.years).match(/\d{4}/g) || [];
+    from = clampYear(found[0]); to = clampYear(found[found.length - 1]);
+    if (/(\+|present|now|current)\s*$/i.test(v.years) && found.length === 1) to = YEAR_MAX;
+  }
+  if (from == null) from = to;
+  if (to == null) to = from;
+  if (from != null && to < from) [from, to] = [to, from];
+  return { from, to };
+}
+export const yearsLabel = ({ from, to }) => (from == null ? '' : from === to ? String(from) : `${from}–${to}`);
+function normalizeYears(v) {
+  const r = yearRange(v);
+  v.yearFrom = r.from; v.yearTo = r.to; v.years = yearsLabel(r);
+  return v;
+}
+
 // ---------------------------------------------------------------- schemas
 const SUB_SCHEMA = [
   { title: 'Identity', fields: [
@@ -76,7 +100,8 @@ const AMP_SCHEMA = [
 const VEH_SCHEMA = [
   { title: 'Vehicle', fields: [
     { k: 'category', label: 'Type', type: 'select', options: ['Car', 'Truck', 'SUV', 'Van'] }, { k: 'body', label: 'Body style', type: 'text', placeholder: 'Sedan, Crew cab, Hatchback…' },
-    { k: 'doors', label: 'Doors', type: 'select', options: [2, 3, 4, 5] }, { k: 'years', label: 'Years', type: 'text', placeholder: '2019–2024' },
+    { k: 'doors', label: 'Doors', type: 'select', options: [2, 3, 4, 5] },
+    { k: 'yearFrom', label: 'Year from', type: 'select', options: ['', ...YEARS], numeric: true }, { k: 'yearTo', label: 'Year to', type: 'select', options: ['', ...YEARS], numeric: true },
     { k: 'make', label: 'Make', type: 'text', req: true }, { k: 'model', label: 'Model', type: 'text', req: true },
     { k: 'cabinLength', label: 'Cabin length (for cabin gain)', kind: 'len', type: 'num' }, { k: 'notes', label: 'Notes', type: 'area' }] },
 ];
@@ -85,7 +110,7 @@ const KIND_META = {
   amps: { title: 'Amplifiers', one: 'amplifier', schema: AMP_SCHEMA, list: allAmps },
   vehicles: { title: 'Vehicles', one: 'vehicle', schema: VEH_SCHEMA, list: allVehicles },
 };
-const filters = { subs: { q: '', brand: '', size: '' }, amps: { q: '', brand: '', minW: '' }, vehicles: { q: '', cat: '', doors: '' } };
+const filters = { subs: { q: '', brand: '', size: '' }, amps: { q: '', brand: '', minW: '' }, vehicles: { q: '', cat: '', doors: '', year: '' } };
 
 // ---------------------------------------------------------------- list views
 export function renderLibrary(kind) {
@@ -111,7 +136,8 @@ export function renderLibrary(kind) {
     kind !== 'vehicles' ? h('select', { 'aria-label': 'Brand', onchange: (e) => { f.brand = e.target.value; rerender(); } }, ['', ...new Set(meta.list().map((x) => x.brand))].map((b) => h('option', { value: b, selected: f.brand === b }, b || 'All brands'))) : null,
     kind === 'amps' ? h('select', { 'aria-label': 'Power', onchange: (e) => { f.minW = e.target.value; rerender(); } }, ['', 500, 1000, 1500, 3000].map((w) => h('option', { value: w, selected: String(f.minW) === String(w) }, w ? `${w} W and up` : 'Any power'))) : null,
     kind === 'vehicles' ? h('select', { 'aria-label': 'Type', onchange: (e) => { f.cat = e.target.value; rerender(); } }, ['', 'Car', 'Truck', 'SUV', 'Van'].map((c) => h('option', { value: c, selected: f.cat === c }, c || 'All types'))) : null,
-    kind === 'vehicles' ? h('select', { 'aria-label': 'Doors', onchange: (e) => { f.doors = e.target.value; rerender(); } }, ['', 2, 4].map((d) => h('option', { value: d, selected: String(f.doors) === String(d) }, d ? `${d}-door` : 'Any doors'))) : null);
+    kind === 'vehicles' ? h('select', { 'aria-label': 'Doors', onchange: (e) => { f.doors = e.target.value; rerender(); } }, ['', 2, 4].map((d) => h('option', { value: d, selected: String(f.doors) === String(d) }, d ? `${d}-door` : 'Any doors'))) : null,
+    kind === 'vehicles' ? h('select', { 'aria-label': 'Model year', onchange: (e) => { f.year = e.target.value; rerender(); } }, ['', ...YEARS].map((y) => h('option', { value: y, selected: String(f.year) === String(y) }, y || `Any year (${YEAR_MIN}–${YEAR_MAX})`))) : null);
   root.append(head, note, bar, listHost);
   rerender();
   return root;
@@ -123,7 +149,8 @@ function renderList(kind, host) {
   let items = meta.list().filter((x) => !q || JSON.stringify([x.brand, x.model, x.series, x.make, x.body, x.category, x.years]).toLowerCase().includes(q));
   if (kind === 'subs') { if (f.size) items = items.filter((x) => String(x.size) === String(f.size)); if (f.brand) items = items.filter((x) => x.brand === f.brand); }
   if (kind === 'amps') { if (f.brand) items = items.filter((x) => x.brand === f.brand); if (f.minW) items = items.filter((x) => maxRated(x) >= +f.minW); }
-  if (kind === 'vehicles') { if (f.cat) items = items.filter((x) => x.category === f.cat); if (f.doors) items = items.filter((x) => String(x.doors) === String(f.doors)); }
+  if (kind === 'vehicles') { if (f.cat) items = items.filter((x) => x.category === f.cat); if (f.doors) items = items.filter((x) => String(x.doors) === String(f.doors));
+    if (f.year) items = items.filter((x) => { const r = yearRange(x); return r.from == null || (+f.year >= r.from && +f.year <= r.to); }); }
   clear(host);
   if (!items.length) { host.append(h('div', { class: 'card empty' }, h('h3', null, 'Nothing matches'), h('p', null, `Clear the filters, or add the ${meta.one} yourself.`))); return; }
   if (kind === 'vehicles') {
@@ -162,7 +189,7 @@ function ampCard(a) {
 }
 function vehicleCard(v) {
   return h('article', { class: 'card lib-card' },
-    h('div', { class: 'lib-card-head' }, h('div', null, h('p', { class: 'eyebrow' }, `${v.category} · ${v.doors}-door · ${v.body || ''}`), h('h3', null, `${v.years ? v.years + ' ' : ''}${v.make ? v.make + ' ' : ''}${v.model}`))),
+    h('div', { class: 'lib-card-head' }, h('div', null, h('p', { class: 'eyebrow' }, `${v.category} · ${v.doors}-door · ${v.body || ''}`), h('h3', null, `${yearsLabel(yearRange(v)) ? yearsLabel(yearRange(v)) + ' ' : ''}${v.make ? v.make + ' ' : ''}${v.model}`))),
     h('div', { class: 'badges' }, badges(v)),
     h('ul', { class: 'loc-list' }, (v.locations || []).map((l) => h('li', null, h('b', null, l.name), h('span', { class: 'mono small' }, l.shape === 'wedge' ? `${units.fmtLen(l.w)} W × ${units.fmtLen(l.h)} H × ${units.fmtLen(l.d)}/${units.fmtLen(l.dTop)} D` : units.dims(l.w, l.h, l.d))))),
     v.notes ? h('p', { class: 'muted small' }, v.notes) : null,
@@ -225,6 +252,7 @@ export function editItem(kind, item, opts = {}) {
   const draft = JSON.parse(JSON.stringify(item || defaults(kind)));
   if (isNew && !opts.keepId) draft.id = uid(kind === 'subs' ? 's' : kind === 'amps' ? 'a' : 'v');
   delete draft._builtin; delete draft._custom; delete draft._edited;
+  if (kind === 'vehicles' && (draft.years || draft.yearFrom || draft.yearTo)) normalizeYears(draft);
   const body = h('div', { class: 'editor' });
   const draw = () => {
     clear(body);
@@ -248,6 +276,7 @@ export function editItem(kind, item, opts = {}) {
       const req = meta.schema.flatMap((s) => s.fields).filter((f) => f.req && !get(draft, f.k));
       if (req.length) { toast(`Fill in ${req.map((f) => f.label.toLowerCase()).join(' and ')}.`, 'bad'); return; }
       if (kind === 'subs' && !(draft.fs && (draft.qts || (draft.qes && draft.qms)) && (draft.vas || (draft.cms && draft.sd)))) { toast('A sub needs at least Fs, Qts (or Qes + Qms) and Vas to be simulated.', 'bad'); return; }
+      if (kind === 'vehicles') normalizeYears(draft);
       try { await save(kind, draft); c(); toast(isNew ? 'Added to the library.' : 'Saved.', 'good'); opts.onSaved?.(draft); }
       catch { toast('Could not save. You may not have permission to add to this shared library.', 'bad'); }
     } },
@@ -256,7 +285,7 @@ export function editItem(kind, item, opts = {}) {
 function defaults(kind) {
   if (kind === 'subs') return { brand: '', model: '', size: 12, shape: 'round', coils: 2, coilOhms: 4, paramWiring: 'series', factory: {}, source: {} };
   if (kind === 'amps') return { brand: '', model: '', class: 'D', channels: 1, power: {}, minOhms: 1, source: {} };
-  return { category: 'Car', body: '', doors: 4, make: '', model: '', years: '', cabinLength: 100, locations: [{ id: 'trunk', name: 'Trunk', shape: 'rect', w: 38, h: 14, d: 28, openingW: 40, openingH: 14, notes: '' }] };
+  return { category: 'Car', body: '', doors: 4, make: '', model: '', years: '', yearFrom: null, yearTo: null, cabinLength: 100, locations: [{ id: 'trunk', name: 'Trunk', shape: 'rect', w: 38, h: 14, d: 28, openingW: 40, openingH: 14, notes: '' }] };
 }
 function fieldFor(draft, f) {
   const path = f.path || f.k;
@@ -264,7 +293,7 @@ function fieldFor(draft, f) {
   const id = `e-${f.k.replace(/\W/g, '-')}`;
   if (f.type === 'text') return textField({ id, label: f.label, value: v, placeholder: f.placeholder, onChange: (x) => set(draft, path, x) });
   if (f.type === 'area') return h('label', { class: 'field field-wide', for: id }, h('span', { class: 'field-label' }, f.label), h('textarea', { id, rows: 3, onchange: (e) => set(draft, path, e.target.value) }, v || ''));
-  if (f.type === 'select') return selectField({ id, label: f.label, value: v ?? '', options: f.options.map((o) => ({ value: o, label: o === '' ? '—' : o === 'true' ? 'Yes' : o === 'false' ? 'No' : String(o) })), onChange: (x) => set(draft, path, x === '' ? null : x === 'true' ? true : x === 'false' ? false : isFinite(+x) && typeof f.options[0] === 'number' ? +x : x) });
+  if (f.type === 'select') return selectField({ id, label: f.label, value: v ?? '', options: f.options.map((o) => ({ value: o, label: o === '' ? '—' : o === 'true' ? 'Yes' : o === 'false' ? 'No' : String(o) })), onChange: (x) => set(draft, path, x === '' ? null : x === 'true' ? true : x === 'false' ? false : isFinite(+x) && (f.numeric || typeof f.options[0] === 'number') ? +x : x) });
   return numField({ id, label: f.label, kind: f.kind || 'plain', unit: f.unit, value: v, onChange: (x) => set(draft, path, x) });
 }
 function locationsEditor(draft, redraw) {
@@ -392,7 +421,7 @@ function aiVehicleDialog() {
   modal({ title: 'AI space estimate', body: h('div', { class: 'editor' },
     h('p', { class: 'muted' }, 'Claude estimates the trunk, cargo or behind-seat space for your vehicle so you can start designing. Measure before you cut: trims and model years differ.'),
     h('div', { class: 'fs-grid' },
-      textField({ id: 'v-year', label: 'Year', value: '', placeholder: '2021', onChange: (v) => { st.year = v; } }),
+      selectField({ id: 'v-year', label: 'Year', value: '', options: [{ value: '', label: 'Choose a year' }, ...YEARS.map((y) => ({ value: y, label: String(y) }))], onChange: (v) => { st.year = v; } }),
       textField({ id: 'v-make', label: 'Make', value: '', placeholder: 'Chevrolet', onChange: (v) => { st.make = v; } }),
       textField({ id: 'v-model', label: 'Model', value: '', placeholder: 'Silverado 1500', onChange: (v) => { st.model = v; } }),
       textField({ id: 'v-body', label: 'Body / cab', value: '', placeholder: 'Crew cab', onChange: (v) => { st.body = v; } }))),
@@ -404,7 +433,7 @@ function aiVehicleDialog() {
     try {
       const res = await estimateVehicle(st, { signal: p.ctl.signal });
       p.close();
-      const draft = { ...defaults('vehicles'), ...res, years: res.years || st.year, aiSourced: true,
+      const draft = { ...defaults('vehicles'), ...res, years: res.years || st.year, yearFrom: null, yearTo: null, aiSourced: true,
         locations: (res.locations || []).map((l, i) => ({ id: `loc${i + 1}`, ...l })), notes: `AI estimate (${res.confidence || 'unknown'} confidence). ${res.notes || ''} Measure before building.` };
       delete draft.confidence;
       editItem('vehicles', draft, { banner: h('div', { class: 'note warn' }, h('b', null, 'Estimated sizes. '), 'Measure your vehicle and correct these before you build.') });

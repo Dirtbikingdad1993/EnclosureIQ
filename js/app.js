@@ -484,12 +484,18 @@ async function boot() {
   await initStore();
   recompute();
   window.addEventListener('hashchange', route);
-  onStoreChange(() => {
-    recompute();
-    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
-    if (document.querySelector('.modal-wrap')) return; // don't yank the page from under an open dialog
-    if (app.view !== 'design' || !typing) render(); else renderResults();
-  });
+  let storeTimer = null;
+  const onStore = () => {
+    clearTimeout(storeTimer);
+    // wait for a dialog that is closing after a save; never redraw the page under an open dialog
+    storeTimer = setTimeout(() => {
+      if (document.querySelector('.modal-wrap')) { storeTimer = setTimeout(onStore, 400); return; }
+      recompute();
+      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+      if (app.view !== 'design' || !typing) render(); else renderResults();
+    }, 60);
+  };
+  onStoreChange(onStore);
   route();
 }
 boot();
